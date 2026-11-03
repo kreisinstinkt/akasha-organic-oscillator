@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101b21">
+<title>Akasha Organic Oscillator · v0.1.2</title>
+<style>
+:root{color-scheme:dark;--bg:#101b21;--panel:#19272d;--line:#31464d;--ink:#f0efe7;--muted:#a9bbc0;--accent:#a8d8cc;--gold:#e8ca91}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#23373b 0%,#101b21 68%);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);min-height:100vh}main{max-width:1100px;margin:auto;padding:clamp(14px,3vw,32px) 14px 50px}header{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:18px}h1{font-size:clamp(23px,3.5vw,36px);font-weight:560;letter-spacing:.02em;margin:3px 0}h2{font-size:15px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--accent);margin:0 0 17px}.sub,.hint{font-size:13px;color:var(--muted)}.eyebrow{font-size:12px;letter-spacing:.2em;color:var(--gold)}.status{font-size:13px;color:var(--gold);padding:9px 12px;border:1px solid var(--line);border-radius:12px}.grid{display:grid;grid-template-columns:minmax(240px,1fr) minmax(320px,1.4fr);gap:14px}.panel{border:1px solid var(--line);background:rgba(25,39,45,.92);border-radius:19px;padding:20px;min-width:0}.wide{grid-column:1/-1}.waves{display:grid;grid-template-columns:1fr 1fr;gap:9px}.wave{background:#22343a;border:1px solid #486068;border-radius:13px;padding:13px 8px;color:var(--ink);font-size:15px;min-height:53px;cursor:pointer}.wave[aria-pressed="true"]{background:#395b57;border:2px solid var(--accent);padding:12px 7px}.control{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:6px;margin:14px 0}.control label{font-size:15px}.value{font-variant-numeric:tabular-nums;color:var(--gold);font-size:14px}.control input{grid-column:1/-1;width:100%;accent-color:var(--accent);height:30px;margin:0;cursor:pointer}.adsr{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}.scope{width:100%;height:100px;display:block;border-radius:12px;background:#0e1a1e;border:1px solid #30454b}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}button.action{border:1px solid #6e9792;background:#294c48;border-radius:12px;color:#effaf7;padding:12px 18px;font:inherit;font-weight:550;cursor:pointer;min-height:48px}.action.stop{background:#543a3a;border-color:#937575}.keyboard-outer{overflow-x:auto;overflow-y:hidden;padding-bottom:12px;-webkit-overflow-scrolling:touch;touch-action:pan-x}.keyboard{position:relative;height:210px;width:1060px;user-select:none;-webkit-user-select:none;touch-action:none;margin:6px auto 0}.key{position:absolute;top:0;border:1px solid #66777b;border-radius:0 0 9px 9px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font-size:12px;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent}.key.white{width:70px;height:205px;background:linear-gradient(#e7e9e2,#fffdf4);color:#304147;z-index:1;box-shadow:inset 0 -9px 12px #aab4b5}.key.black{width:42px;height:125px;background:linear-gradient(#40545b,#142126 80%);color:#dceae6;z-index:2;border-color:#101b21;padding-bottom:9px}.key.white.active{background:linear-gradient(#b8e3d6,#79b4a7)}.key.black.active{background:linear-gradient(#72c0ac,#31665e)}.notes{font-size:13px;color:var(--muted);margin-top:9px}.kbd-note{color:var(--gold)}footer{font-size:12px;color:var(--muted);margin-top:22px}@media(max-width:690px){.grid{grid-template-columns:1fr}.adsr{gap:0 15px}.panel{padding:16px}.keyboard{margin-left:0}.status{width:100%}}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="eyebrow">AKASHA · AUDIO LAB</div><h1>Organic Oscillator <span style="font-size:.5em;color:var(--gold)">v0.1.2</span></h1><div class="sub">Vier Grundwellenformen · Mehr Klangkörper und Präsenz</div></div><div id="status" class="status" role="status" aria-live="polite">Bereit · Erste Taste berühren</div></header>
+<div class="grid">
+<section class="panel"><h2>01 · Grundwellenform</h2><div class="waves" role="group" aria-label="Wellenform"><button class="wave" data-wave="sine" aria-pressed="true">∿ Sinus</button><button class="wave" data-wave="triangle" aria-pressed="false">△ Dreieck</button><button class="wave" data-wave="sawtooth" aria-pressed="false">╱ Sägezahn</button><button class="wave" data-wave="square" aria-pressed="false">▢ Rechteck</button></div><p class="hint">Die Wellenform gilt für neu gespielte Töne.</p><canvas id="scope" class="scope" aria-label="Vorschau der Wellenform"></canvas><div class="control"><label for="tune">Tonhöhe / Transposition</label><output id="tune-value" class="value">0 Halbtöne</output><input id="tune" type="range" min="-12" max="12" step="1" value="0"></div></section>
+<section class="panel"><h2>02 · Hüllkurve ADSR</h2><div class="adsr"><div class="control"><label for="attack">Attack</label><output id="attack-value" class="value"></output><input id="attack" type="range" min="0.005" max="5" step="0.005" value="0.08"></div><div class="control"><label for="decay">Decay</label><output id="decay-value" class="value"></output><input id="decay" type="range" min="0.01" max="5" step="0.01" value="0.45"></div><div class="control"><label for="sustain">Sustain</label><output id="sustain-value" class="value"></output><input id="sustain" type="range" min="0" max="1" step="0.01" value="0.72"></div><div class="control"><label for="release">Release</label><output id="release-value" class="value"></output><input id="release" type="range" min="0.02" max="8" step="0.01" value="1.2"></div></div><div class="adsr"><div class="control"><label for="body">Klangkörper · Wärme</label><output id="body-value" class="value"></output><input id="body" type="range" min="0" max="100" step="1" value="40"></div><div class="control"><label for="presence">Klarheit · Präsenz</label><output id="presence-value" class="value"></output><input id="presence" type="range" min="0" max="100" step="1" value="40"></div></div><p class="hint">Zwei sanfte Klangregler: Tiefe und Kontur. Bei 0 % neutraler Grundklang. Wirken auch auf gehaltene Töne.</p><div class="control"><label for="master">Master-Lautstärke</label><output id="master-value" class="value"></output><input id="master" type="range" min="0" max="100" step="1" value="35"></div><div class="actions"><button id="audio-start" class="action" type="button">▶ Audio aktivieren &amp; Testton</button><button id="stop" class="action stop" type="button">■ Alle Töne stoppen</button><button id="reset" class="action" type="button">Werte zurücksetzen</button></div></section>
+<section class="panel wide"><h2>03 · Touch-Klaviatur</h2><div class="hint">Zwei Oktaven von C3 bis C5 · Mehrere Tasten gleichzeitig spielen · Klaviatur bei Bedarf horizontal verschieben</div><div class="keyboard-outer" id="key-scroll"><div id="keyboard" class="keyboard" aria-label="Spielbare Bildschirmklaviatur"></div></div><div class="notes"><span class="kbd-note" id="note-display">Aktive Stimmen: 0 / 8</span> · Für den ersten Ton die Klaviatur berühren. Tonhöhe, Klangkörper, Klarheit und Master wirken auf aktive Töne; ADSR gilt ab dem nächsten Anschlag.</div></section>
+</div><footer>Akasha Organic Oscillator · Phase 1 · Klangabstimmung · Web Audio API · Offline-fähige Einzeldatei · v0.1.2 · Kopfhörer zunächst leise einstellen</footer>
+</main>
+<script>
+/* AUDIO ENGINE: unabhängig von der Oberfläche. Später separat in JS-Modul auslagerbar. */
+(function(global){'use strict';
+const DEFAULTS=Object.freeze({waveform:'sine',tune:0,attack:0.08,decay:0.45,sustain:0.72,release:1.2,master:0.35,body:0.4,presence:0.4});
+const RANGES={tune:[-12,12],attack:[0.005,5],decay:[0.01,5],sustain:[0,1],release:[0.02,8],master:[0,1],body:[0,1],presence:[0,1]};
+const WAVEFORMS=['sine','triangle','sawtooth','square'];
+class AkashaOrganicOscillator{
+ constructor({audioContext,destination,maxVoices=8}={}){
+  const Ctor=global.AudioContext||global.webkitAudioContext;
+  if(!audioContext&&!Ctor)throw new Error('Web Audio API wird von diesem Browser nicht unterstützt.');
+  this.context=audioContext||new Ctor();this.ownsContext=!audioContext;
+  this.params={...DEFAULTS};this.maxVoices=Math.max(1,Math.min(16,Math.trunc(maxVoices)||8));
+  this.voices=new Map();this.seq=0;this.destroyed=false;
+  this.output=this.context.createGain();this.output.gain.value=this.params.master;
+  this.limiter=this.context.createDynamicsCompressor();
+  this.limiter.threshold.value=-12;this.limiter.knee.value=3;this.limiter.ratio.value=16;
+  this.limiter.attack.value=0.003;this.limiter.release.value=0.16;
+  // Klangformung vor dem Sicherheitslimiter: weiche Shelving-Filter ohne zusätzliche Oszillatoren.
+  this.bodyEQ=this.context.createBiquadFilter();this.bodyEQ.type='lowshelf';this.bodyEQ.frequency.value=190;
+  this.presenceEQ=this.context.createBiquadFilter();this.presenceEQ.type='highshelf';this.presenceEQ.frequency.value=2200;
+  this.bodyEQ.gain.value=this.params.body*3.5;this.presenceEQ.gain.value=this.params.presence*3;
+  this.output.connect(this.bodyEQ);this.bodyEQ.connect(this.presenceEQ);this.presenceEQ.connect(this.limiter);
+  this.destination=destination||this.context.destination;this.limiter.connect(this.destination);
+ }
+ _ready(){if(this.destroyed)throw new Error('Oszillator wurde entfernt.');}
+ async resume(){this._ready();if(this.context.state==='suspended')await this.context.resume();}
+ get outputNode(){return this.limiter;}
+ connect(destination){this._ready();this.limiter.disconnect();this.destination=destination;this.limiter.connect(destination);}
+ setParameter(name,value){this._ready();if(name==='waveform'){
+   if(!WAVEFORMS.includes(value))throw new RangeError('Ungültige Wellenform');this.params.waveform=value;return;
+  }
+  if(!(name in RANGES))throw new RangeError('Unbekannter Parameter: '+name);
+  const numeric=Number(value);if(!Number.isFinite(numeric))throw new RangeError('Ungültiger Wert');
+  const [min,max]=RANGES[name];this.params[name]=Math.min(max,Math.max(min,numeric));
+  if(name==='tune')for(const voice of this.voices.values()){
+   const frequency=440*Math.pow(2,(voice.note+this.params.tune-69)/12);
+   voice.osc.frequency.setTargetAtTime(frequency,this.context.currentTime,0.02);
+  }
+  if(name==='master')this.output.gain.setTargetAtTime(this.params.master,this.context.currentTime,0.025);
+  if(name==='body')this.bodyEQ.gain.setTargetAtTime(this.params.body*3.5,this.context.currentTime,0.04);
+  if(name==='presence')this.presenceEQ.gain.setTargetAtTime(this.params.presence*3,this.context.currentTime,0.04);
+ }
+ getParameters(){return {...this.params};}
+ exportSettings(){return JSON.stringify({format:'akasha-organic-oscillator',version:1,parameters:this.params},null,2);}
+ importSettings(json){this._ready();const obj=typeof json==='string'?JSON.parse(json):json;
+  if(!obj||obj.format!=='akasha-organic-oscillator'||obj.version!==1||!obj.parameters)throw new Error('Ungültiges Preset');
+  for(const name of Object.keys(DEFAULTS))if(Object.prototype.hasOwnProperty.call(obj.parameters,name))this.setParameter(name,obj.parameters[name]);
+ }
+ noteOn(note,velocity=1){this._ready();note=Number(note);velocity=Number(velocity);
+  if(!Number.isFinite(note)||note<0||note>127||!Number.isFinite(velocity))throw new RangeError('Ungültige Note oder Velocity');
+  if(this.voices.size>=this.maxVoices){const oldest=this.voices.keys().next().value;this._finish(oldest,0.008);}
+  const now=this.context.currentTime, p=this.params;
+  const osc=this.context.createOscillator(),amp=this.context.createGain();
+  const hz=440*Math.pow(2,(note+p.tune-69)/12);
+  osc.type=p.waveform;osc.frequency.setValueAtTime(hz,now);amp.gain.setValueAtTime(0,now);
+  // Behutsam angehobener Stimmenpegel mit nachfolgendem Sicherheitslimiter.
+  const peak=0.18*Math.max(0,Math.min(1,velocity));
+  const sustain=peak*p.sustain;
+  amp.gain.linearRampToValueAtTime(peak,now+p.attack);
+  amp.gain.linearRampToValueAtTime(sustain,now+p.attack+p.decay);
+  osc.connect(amp);amp.connect(this.output);
+  const id='voice-'+(++this.seq);
+  const voice={id,note,osc,amp,start:now,peak,sustain,attack:p.attack,decay:p.decay,release:p.release,finished:false};
+  this.voices.set(id,voice);
+  osc.onended=()=>{amp.disconnect();osc.disconnect();if(this.voices.get(id)===voice)this.voices.delete(id);};
+  osc.start(now);return id;
+ }
+ _envelopeLevel(voice,time){const elapsed=Math.max(0,time-voice.start);
+  if(elapsed<voice.attack)return voice.peak*elapsed/voice.attack;
+  if(elapsed<voice.attack+voice.decay)return voice.peak+(voice.sustain-voice.peak)*(elapsed-voice.attack)/voice.decay;
+  return voice.sustain;
+ }
+ _finish(id,release){const v=this.voices.get(id);if(!v||v.finished)return;
+  v.finished=true;this.voices.delete(id);const now=this.context.currentTime;
+  const gain=v.amp.gain;
+  gain.cancelScheduledValues(now);
+  gain.setValueAtTime(Math.max(0,this._envelopeLevel(v,now)),now);
+  gain.linearRampToValueAtTime(0,now+Math.max(.005,release));
+  try{v.osc.stop(now+Math.max(.005,release)+.025);}catch(e){}
+ }
+ noteOff(noteOrId){this._ready();if(typeof noteOrId==='string')this._finish(noteOrId,this.params.release);
+  else for(const [id,v] of this.voices)if(v.note===Number(noteOrId))this._finish(id,this.params.release);
+ }
+ allNotesOff({immediate=false}={}){this._ready();for(const id of Array.from(this.voices.keys()))this._finish(id,immediate?.012:this.params.release);}
+ get activeVoiceCount(){return this.voices.size;}
+ async destroy(){if(this.destroyed)return;this.allNotesOff({immediate:true});this.destroyed=true;
+  this.output.disconnect();this.bodyEQ.disconnect();this.presenceEQ.disconnect();this.limiter.disconnect();if(this.ownsContext)await this.context.close();
+ }
+}
+global.AkashaOrganicOscillator=AkashaOrganicOscillator;
+})(window);
+</script>
+<script>
+/* TESTOBERFLÄCHE: abhängig von der Engine, aber ohne Audioberechnung. */
+(()=>{'use strict';
+let synth=null,starting=null;const held=new Map(),keyboard=document.getElementById('keyboard');
+const status=document.getElementById('status'),display=document.getElementById('note-display');
+const defaults={waveform:'sine',tune:0,attack:0.08,decay:0.45,sustain:0.72,release:1.2,master:0.35,body:0.4,presence:0.4};
+let values={...defaults};
+function initAudio(){
+ if(!synth){synth=new window.AkashaOrganicOscillator();
+  Object.entries(values).forEach(([name,value])=>synth.setParameter(name,value));}
+ // Aufruf synchron in der Nutzergeste, damit Safari den AudioContext freigibt.
+ if(synth.context.state!=='running'&&!starting){
+  starting=synth.resume().then(()=>{status.textContent='Audio aktiv · bereit zum Spielen';})
+   .catch(e=>{status.textContent='Audiofehler: '+e.message;})
+   .finally(()=>{starting=null;});
+ }
+ return synth;
+}
+async function ensureAudio(){const engine=initAudio();if(starting)await starting;return engine;}
+function count(){display.textContent='Aktive Stimmen: '+(synth?synth.activeVoiceCount:0)+' / 8';}
+function paintParams(){for(const name of ['tune','attack','decay','sustain','release','master','body','presence']){
+ const control=document.getElementById(name);control.value=['master','body','presence'].includes(name)?Math.round(values[name]*100):values[name];
+ let label=name==='tune'?(values.tune>0?'+':'')+values.tune+' Halbtöne':name==='sustain'?Math.round(values.sustain*100)+' %':['master','body','presence'].includes(name)?Math.round(values[name]*100)+' %':values[name].toFixed(2)+' s';
+ document.getElementById(name+'-value').textContent=label;
+ }
+ document.querySelectorAll('.wave').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.wave===values.waveform)));
+ drawWave();}
+function update(name,value){values[name]=value;if(synth)synth.setParameter(name,value);paintParams();}
+document.querySelectorAll('.wave').forEach(button=>button.addEventListener('click',()=>update('waveform',button.dataset.wave)));
+for(const name of ['tune','attack','decay','sustain','release','master','body','presence']){
+ document.getElementById(name).addEventListener('input',e=>update(name,['master','body','presence'].includes(name)?Number(e.target.value)/100:Number(e.target.value)));
+}
+function drawWave(){const canvas=document.getElementById('scope'),rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));
+ const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+ const w=rect.width,h=rect.height;ctx.clearRect(0,0,w,h);
+ ctx.strokeStyle='#354f53';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.stroke();
+ ctx.beginPath();ctx.strokeStyle='#a8d8cc';ctx.lineWidth=2;
+ for(let x=0;x<=w;x++){
+  const phase=(x/w*3)%1;let y=0;
+  switch(values.waveform){case 'sine':y=Math.sin(phase*2*Math.PI);break;
+  case 'triangle':y=1-4*Math.abs(phase-.5);break;
+  case 'sawtooth':y=2*phase-1;break;
+  case 'square':y=phase<.5?1:-1;break;}
+  const yy=h/2-y*h*.35;if(x===0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy);
+ }ctx.stroke();}
+const blackNotes=new Set([1,3,6,8,10]);const noteNames=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','H'];
+const whiteWidth=70,blackWidth=42;
+for(let midi=48;midi<=72;midi++){
+ const pitch=midi%12,isBlack=blackNotes.has(pitch),octave=Math.floor(midi/12)-1;
+ const key=document.createElement('div');key.className='key '+(isBlack?'black':'white');
+ key.dataset.note=midi;key.textContent=noteNames[pitch]+octave;
+ key.setAttribute('role','button');key.setAttribute('aria-label','Note '+noteNames[pitch]+octave);
+ key.setAttribute('tabindex','0');
+ const whitesBefore=Array.from({length:midi-48},(_,j)=>48+j).filter(n=>!blackNotes.has(n%12)).length;
+ key.style.left=(isBlack?whitesBefore*whiteWidth-blackWidth/2:whitesBefore*whiteWidth)+'px';
+ keyboard.appendChild(key);
+ key.addEventListener('pointerdown',async e=>{
+  if(e.button!==0&&e.pointerType==='mouse')return;e.preventDefault();
+  try{key.setPointerCapture(e.pointerId);key.classList.add('active');
+   const h={key,note:midi,voice:null};held.set(e.pointerId,h);
+   // Note synchron beim Touch starten, auch während Safari die Audioausgabe freigibt.
+   const engine=initAudio();h.voice=engine.noteOn(midi,0.9);count();
+  }catch(err){status.textContent='Audiofehler: '+err.message;key.classList.remove('active');held.delete(e.pointerId);}
+ });
+ const end=e=>{const h=held.get(e.pointerId);if(!h||h.key!==key)return;
+  held.delete(e.pointerId);key.classList.remove('active');if(h.voice&&synth)synth.noteOff(h.voice);count();};
+ key.addEventListener('pointerup',end);key.addEventListener('pointercancel',end);key.addEventListener('lostpointercapture',end);
+ key.addEventListener('keydown',async e=>{if((e.key==='Enter'||e.key===' ')&&!key.dataset.keyboardHeld){e.preventDefault();key.dataset.keyboardHeld='1';try{initAudio();key.dataset.keyboardVoice=synth.noteOn(midi,.9);key.classList.add('active');count();}catch(err){status.textContent=err.message;}}});
+ key.addEventListener('keyup',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();delete key.dataset.keyboardHeld;key.classList.remove('active');if(key.dataset.keyboardVoice&&synth)synth.noteOff(key.dataset.keyboardVoice);delete key.dataset.keyboardVoice;count();}});
+}
+function stopAll(){held.clear();keyboard.querySelectorAll('.key.active').forEach(key=>{key.classList.remove('active');delete key.dataset.keyboardVoice;delete key.dataset.keyboardHeld;});if(synth)synth.allNotesOff({immediate:true});count();status.textContent='Alle Töne gestoppt';}
+document.getElementById('audio-start').addEventListener('click',()=>{
+ try{
+  const engine=initAudio();
+  const voice=engine.noteOn(60,0.7);
+  status.textContent='Testton C4 wird gespielt';count();
+  // Nur der Testton endet automatisch; alle anderen Tasten bleiben unabhängig.
+  window.setTimeout(()=>{if(synth&&!synth.destroyed){synth.noteOff(voice);count();}},900);
+ }catch(err){status.textContent='Audiofehler: '+err.message;}
+});
+document.getElementById('stop').addEventListener('click',stopAll);
+document.getElementById('reset').addEventListener('click',()=>{values={...defaults};if(synth)Object.entries(values).forEach(([k,v])=>synth.setParameter(k,v));paintParams();});
+window.addEventListener('blur',stopAll);document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAll();});
+window.addEventListener('resize',drawWave);
+paintParams();count();
+})();
+</script>
+</body></html>
